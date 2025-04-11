@@ -1,28 +1,19 @@
-const swaggerJsDoc = require('swagger-jsdoc');
+const express = require('express');
+const router = express.Router();
 const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('../swagger.json');
 
-const options = {
-  definition: {
-    openapi: '3.0.0',
-    info: {
-      title: 'API de Productos y Categorías',
-      version: '1.0.0',
-      description: 'Documentación de la API para el manejo de productos y categorías'
-    },
-    servers: [
-      {
-        url: 'http://localhost:3000',
-        description: 'Servidor local'
-      }
-    ]
-  },
-  apis: ['./routes/*.js'], // Aquí tomará las anotaciones Swagger de tus rutas
+// Options for Swagger UI to send credentials (cookies)
+const swaggerUiOptions = {
+  swaggerOptions: {
+    requestInterceptor: (req) => {
+      req.withCredentials = true;
+      return req;
+    }
+  }
 };
 
-const swaggerSpec = swaggerJsDoc(options);
+// Serve Swagger UI documentation and setup with options
+router.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-const setupSwaggerDocs = (app) => {
-    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-  };
-
-module.exports = setupSwaggerDocs;
+module.exports = router;

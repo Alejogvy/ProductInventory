@@ -1,6 +1,6 @@
 const express = require('express');
-const Category = require('../models/categoryModel');
 const router = express.Router();
+const categoryController = require('../controllers/category');
 
 /**
  * @swagger
@@ -14,32 +14,32 @@ const router = express.Router();
  *       properties:
  *         _id:
  *           type: string
- *           description: ID único de la categoría
+ *           description: Unique category ID
  *         name:
  *           type: string
  *         description:
  *           type: string
  *       example:
- *         name: "Electrónica"
- *         description: "Categoría para productos electrónicos"
+ *         name: "Electronics"
+ *         description: "Category for electronic products"
  */
 
 /**
  * @swagger
  * tags:
- *   name: Categorías
- *   description: API para gestión de categorías
+ *   name: Categories
+ *   description: API for managing categories
  */
 
 /**
  * @swagger
- * /categories:
+ * /api/categories:
  *   get:
- *     summary: Obtener todas las categorías
- *     tags: [Categorías]
+ *     summary: Get all categories
+ *     tags: [Categories]
  *     responses:
  *       200:
- *         description: Lista de categorías
+ *         description: List of categories
  *         content:
  *           application/json:
  *             schema:
@@ -47,60 +47,43 @@ const router = express.Router();
  *               items:
  *                 $ref: '#/components/schemas/Category'
  *       500:
- *         description: Error al obtener categorías
+ *         description: Error fetching categories
  */
-router.get('/categories', async (req, res) => {
-  try {
-    const categories = await Category.find();
-    res.status(200).json(categories);
-  } catch (err) {
-    res.status(500).json({ message: 'Error al obtener categorías', error: err });
-  }
-});
+router.get('/', categoryController.getCategories);
 
 /**
  * @swagger
- * /categories/{id}:
+ * /api/categories/{id}:
  *   get:
- *     summary: Obtener una categoría por ID
- *     tags: [Categorías]
+ *     summary: Get a category by ID
+ *     tags: [Categories]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
- *         description: ID de la categoría
+ *         description: Category ID
  *         schema:
  *           type: string
  *     responses:
  *       200:
- *         description: Categoría encontrada
+ *         description: Category found
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Category'
  *       404:
- *         description: Categoría no encontrada
+ *         description: Category not found
  *       500:
- *         description: Error del servidor
+ *         description: Server error
  */
-router.get('/categories/:id', async (req, res) => {
-  try {
-    const category = await Category.findById(req.params.id);
-    if (!category) {
-      return res.status(404).json({ message: 'Categoría no encontrada' });
-    }
-    res.status(200).json(category);
-  } catch (err) {
-    res.status(500).json({ message: 'Error al obtener la categoría', error: err });
-  }
-});
+router.get('/:id', categoryController.getCategoryById);
 
 /**
  * @swagger
- * /categories:
+ * /api/categories:
  *   post:
- *     summary: Crear una nueva categoría
- *     tags: [Categorías]
+ *     summary: Create a new category
+ *     tags: [Categories]
  *     requestBody:
  *       required: true
  *       content:
@@ -109,31 +92,23 @@ router.get('/categories/:id', async (req, res) => {
  *             $ref: '#/components/schemas/Category'
  *     responses:
  *       201:
- *         description: Categoría creada exitosamente
+ *         description: Category successfully created
  *       400:
- *         description: Error al crear la categoría
+ *         description: Error creating category
  */
-router.post('/categories', async (req, res) => {
-  try {
-    const newCategory = new Category(req.body);
-    await newCategory.save();
-    res.status(201).json(newCategory);
-  } catch (err) {
-    res.status(400).json({ message: 'Error al crear la categoría', error: err });
-  }
-});
+router.post('/', categoryController.createCategory);
 
 /**
  * @swagger
- * /categories/{id}:
+ * /api/categories/{id}:
  *   put:
- *     summary: Actualizar una categoría por ID
- *     tags: [Categorías]
+ *     summary: Update a category by ID
+ *     tags: [Categories]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
- *         description: ID de la categoría a actualizar
+ *         description: Category ID to update
  *         schema:
  *           type: string
  *     requestBody:
@@ -144,55 +119,35 @@ router.post('/categories', async (req, res) => {
  *             $ref: '#/components/schemas/Category'
  *     responses:
  *       200:
- *         description: Categoría actualizada
+ *         description: Category updated
  *       400:
- *         description: Error en los datos
+ *         description: Invalid data
  *       404:
- *         description: Categoría no encontrada
+ *         description: Category not found
  */
-router.put('/categories/:id', async (req, res) => {
-  try {
-    const updatedCategory = await Category.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updatedCategory) {
-      return res.status(404).json({ message: 'Categoría no encontrada' });
-    }
-    res.status(200).json(updatedCategory);
-  } catch (err) {
-    res.status(400).json({ message: 'Error al actualizar la categoría', error: err });
-  }
-});
+router.put('/:id', categoryController.updateCategory);
 
 /**
  * @swagger
- * /categories/{id}:
+ * /api/categories/{id}:
  *   delete:
- *     summary: Eliminar una categoría por ID
- *     tags: [Categorías]
+ *     summary: Delete a category by ID
+ *     tags: [Categories]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
- *         description: ID de la categoría a eliminar
+ *         description: Category ID to delete
  *         schema:
  *           type: string
  *     responses:
  *       200:
- *         description: Categoría eliminada correctamente
+ *         description: Category successfully deleted
  *       404:
- *         description: Categoría no encontrada
+ *         description: Category not found
  *       500:
- *         description: Error del servidor
+ *         description: Server error
  */
-router.delete('/categories/:id', async (req, res) => {
-  try {
-    const deletedCategory = await Category.findByIdAndDelete(req.params.id);
-    if (!deletedCategory) {
-      return res.status(404).json({ message: 'Categoría no encontrada' });
-    }
-    res.status(200).json({ message: 'Categoría eliminada' });
-  } catch (err) {
-    res.status(500).json({ message: 'Error al eliminar la categoría', error: err });
-  }
-});
+router.delete('/:id', categoryController.deleteCategory);
 
 module.exports = router;

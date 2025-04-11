@@ -1,7 +1,6 @@
 const express = require('express');
-const Product = require('../models/productModel');
-const validateProduct = require('../validators/productValidator');
 const router = express.Router();
+const { getProducts, getProductById, createProduct, updateProduct, deleteProduct} = require('../controllers/product');
 
 /**
  * @swagger
@@ -13,30 +12,40 @@ const router = express.Router();
  *         - name
  *         - description
  *         - price
+ *         - color
  *         - category
  *         - stock
  *         - supplier
  *       properties:
- *         _id:
+ *         id:
  *           type: string
- *           description: ID del producto
+ *           description: Product ID
  *         name:
  *           type: string
  *         description:
  *           type: string
  *         price:
  *           type: number
+ *         color:
+ *           type: string
  *         category:
  *           type: string
  *         stock:
  *           type: integer
  *         supplier:
  *           type: string
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
  *       example:
- *         name: "Laptop Lenovo"
- *         description: "Laptop de 14 pulgadas con 8GB RAM"
+ *         name: "Lenovo Laptop"
+ *         description: "14-inch laptop with 8GB RAM"
  *         price: 599.99
- *         category: "Electrónica"
+ *         color: "Black"
+ *         category: "607d1a6f8c1b2c1a885fb7e9"
  *         stock: 10
  *         supplier: "Lenovo Inc."
  */
@@ -44,19 +53,19 @@ const router = express.Router();
 /**
  * @swagger
  * tags:
- *   name: Productos
- *   description: API para gestión de productos
+ *   name: Products
+ *   description: API for managing products
  */
 
 /**
  * @swagger
- * /products:
+ * /api/products:
  *   get:
- *     summary: Obtener todos los productos
- *     tags: [Productos]
+ *     summary: Get all products
+ *     tags: [Products]
  *     responses:
  *       200:
- *         description: Lista de productos
+ *         description: List of products
  *         content:
  *           application/json:
  *             schema:
@@ -64,60 +73,55 @@ const router = express.Router();
  *               items:
  *                 $ref: '#/components/schemas/Product'
  *       500:
- *         description: Error del servidor
+ *         description: Server error
  */
-router.get('/products', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
-    const products = await Product.find();
-    res.status(200).json(products);
+    await getProducts(req, res);
   } catch (err) {
-    res.status(500).json({ message: 'Error al obtener productos', error: err });
+    res.status(500).json({ message: 'Error fetching products', error: err });
   }
 });
 
 /**
  * @swagger
- * /products/{id}:
+ * /api/products/{id}:
  *   get:
- *     summary: Obtener un producto por ID
- *     tags: [Productos]
+ *     summary: Get a product by ID
+ *     tags: [Products]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
- *         description: ID del producto
+ *         description: Product ID
  *         schema:
  *           type: string
  *     responses:
  *       200:
- *         description: Producto encontrado
+ *         description: Product found
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Product'
  *       404:
- *         description: Producto no encontrado
+ *         description: Product not found
  *       500:
- *         description: Error del servidor
+ *         description: Server error
  */
-router.get('/products/:id', async (req, res) => {
+router.get('/:id', async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
-    if (!product) {
-      return res.status(404).json({ message: 'Producto no encontrado' });
-    }
-    res.status(200).json(product);
+    await getProductById(req, res);
   } catch (err) {
-    res.status(500).json({ message: 'Error al obtener el producto', error: err });
+    res.status(500).json({ message: 'Error fetching the product', error: err });
   }
 });
 
 /**
  * @swagger
- * /products:
+ * /api/products:
  *   post:
- *     summary: Crear un nuevo producto
- *     tags: [Productos]
+ *     summary: Create a new product
+ *     tags: [Products]
  *     requestBody:
  *       required: true
  *       content:
@@ -126,36 +130,31 @@ router.get('/products/:id', async (req, res) => {
  *             $ref: '#/components/schemas/Product'
  *     responses:
  *       201:
- *         description: Producto creado
+ *         description: Product created
  *       400:
- *         description: Error de validación
+ *         description: Validation error
  */
-router.post('/products', async (req, res) => {
-  const { error } = validateProduct(req.body);
-  if (error) {
-    return res.status(400).json({ message: 'Error de validación', details: error.details });
-  }
-
+router.post('/', createProduct, async (req, res) => {
   try {
-    const newProduct = new Product(req.body);
-    await newProduct.save();
-    res.status(201).json(newProduct);
+    const product = new Product(req.body);
+    await product.save();
+    res.status(201).json(product);
   } catch (err) {
-    res.status(400).json({ message: 'Error al crear el producto', error: err });
+    res.status(400).json({ message: 'Error creating the product', error: err });
   }
 });
 
 /**
  * @swagger
- * /products/{id}:
+ * /api/products/{id}:
  *   put:
- *     summary: Actualizar un producto por ID
- *     tags: [Productos]
+ *     summary: Update a product by ID
+ *     tags: [Products]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
- *         description: ID del producto a actualizar
+ *         description: Product ID to update
  *         schema:
  *           type: string
  *     requestBody:
@@ -166,59 +165,50 @@ router.post('/products', async (req, res) => {
  *             $ref: '#/components/schemas/Product'
  *     responses:
  *       200:
- *         description: Producto actualizado
+ *         description: Product updated
  *       400:
- *         description: Error de validación o actualización
+ *         description: Validation or update error
  *       404:
- *         description: Producto no encontrado
+ *         description: Product not found
  */
-router.put('/products/:id', async (req, res) => {
-  const { error } = validateProduct(req.body);
-  if (error) {
-    return res.status(400).json({ message: 'Error de validación', details: error.details });
-  }
-
+router.put('/:id', async (req, res) => {
   try {
-    const updatedProduct = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updatedProduct) {
-      return res.status(404).json({ message: 'Producto no encontrado' });
+    const { name, description, price, color, category, stock, supplier } = req.body;
+    if (!name || !description || !price || !color || !category || !stock || !supplier) {
+        return res.status(400).json({ message: 'name, description, price, and color are required' });
     }
-    res.status(200).json(updatedProduct);
-  } catch (err) {
-    res.status(400).json({ message: 'Error al actualizar el producto', error: err });
+    await updateProduct(req, res);
+  } catch (error) {
+    res.status(400).json({ message: 'Error updating product', error: error.message });
   }
 });
 
 /**
  * @swagger
- * /products/{id}:
+ * /api/products/{id}:
  *   delete:
- *     summary: Eliminar un producto por ID
- *     tags: [Productos]
+ *     summary: Delete a product by ID
+ *     tags: [Products]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
- *         description: ID del producto a eliminar
+ *         description: Product ID to delete
  *         schema:
  *           type: string
  *     responses:
  *       200:
- *         description: Producto eliminado correctamente
+ *         description: Product deleted successfully
  *       404:
- *         description: Producto no encontrado
+ *         description: Product not found
  *       500:
- *         description: Error del servidor
+ *         description: Server error
  */
-router.delete('/products/:id', async (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
-    const deletedProduct = await Product.findByIdAndDelete(req.params.id);
-    if (!deletedProduct) {
-      return res.status(404).json({ message: 'Producto no encontrado' });
-    }
-    res.status(200).json({ message: 'Producto eliminado' });
-  } catch (err) {
-    res.status(500).json({ message: 'Error al eliminar el producto', error: err });
+     await deleteProduct(req, res);
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting product', error: error.message });
   }
 });
 

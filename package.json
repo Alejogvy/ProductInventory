@@ -4,16 +4,27 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "generate-swagger": "swagger-jsdoc -d ./config/swaggerConfig.js -o ./swagger.json"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "connect-mongo": "^5.1.0",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "express-session": "^1.18.1",
+    "express-validator": "^7.2.1",
     "joi": "^17.13.3",
-    "swagger-jsdoc": "^6.2.8",
+    "mongoose": "^8.13.2",
+    "swagger-jsdoc": "6.2.8",
     "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "swagger-autogen": "^2.23.7"
   }
 }
