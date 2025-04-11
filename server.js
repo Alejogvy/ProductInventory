@@ -15,8 +15,14 @@ const app = express();
 connectDB();
 
 // Middlewares
-app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' 
+    ? 'https://productinventory-90te.onrender.com' 
+    : 'http://localhost:3000',
+  credentials: true
+}));
 
 // Main routes
 app.use('/api/products', productRoutes);
