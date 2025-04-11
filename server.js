@@ -16,7 +16,6 @@ connectDB();
 
 // Middlewares
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
     ? 'https://productinventory-90te.onrender.com' 
@@ -28,14 +27,14 @@ app.use(cors({
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 
-// Swagger Documentation
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
 // Route to serve the swagger.json
 app.get('/swagger.json', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   res.send(swaggerSpec);
 });
+
+// Swagger Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Handle non-existing routes
 app.use((req, res) => {
