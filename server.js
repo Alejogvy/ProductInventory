@@ -5,6 +5,7 @@ const cors = require('cors');
 const connectDB = require('./data/database');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swaggerConfig');
+const userRoutes = require('./routes/users');
 const productRoutes = require('./routes/productRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 
@@ -24,6 +25,7 @@ app.use(cors({
 }));
 
 // Main routes
+app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 
