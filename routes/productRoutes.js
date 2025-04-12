@@ -59,7 +59,6 @@ const { getProducts, getProductById, createProduct, updateProduct, deleteProduct
 
 /**
  * @swagger
- * /api/products:
  *   get:
  *     summary: Get all products
  *     tags: [Products]
@@ -85,7 +84,6 @@ router.get('/', async (req, res) => {
 
 /**
  * @swagger
- * /api/products/{id}:
  *   get:
  *     summary: Get a product by ID
  *     tags: [Products]
@@ -118,7 +116,6 @@ router.get('/:id', async (req, res) => {
 
 /**
  * @swagger
- * /api/products:
  *   post:
  *     summary: Create a new product
  *     tags: [Products]
@@ -146,7 +143,6 @@ router.post('/', createProduct, async (req, res) => {
 
 /**
  * @swagger
- * /api/products/{id}:
  *   put:
  *     summary: Update a product by ID
  *     tags: [Products]
@@ -185,7 +181,6 @@ router.put('/:id', async (req, res) => {
 
 /**
  * @swagger
- * /api/products/{id}:
  *   delete:
  *     summary: Delete a product by ID
  *     tags: [Products]
