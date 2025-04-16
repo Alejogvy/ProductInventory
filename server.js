@@ -58,7 +58,7 @@ app.get('/github/callback',
   passport.authenticate('github', { 
     failureRedirect: '/login',
     successRedirect: process.env.NODE_ENV === 'production'
-      ? 'https://cse341-crud-uv92.onrender.com/api-docs'
+      ? 'https://productinventory-90te.onrender.com/api-docs'
       : '/api-docs'
   })
 );
