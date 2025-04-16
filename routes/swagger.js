@@ -14,6 +14,6 @@ const swaggerUiOptions = {
 };
 
 // Serve Swagger UI documentation and setup with options
-router.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+router.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, swaggerUiOptions));
 
 module.exports = router;

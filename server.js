@@ -1,13 +1,18 @@
 require('dotenv').config();
+require('./middleware/passport');
 const express = require('express');
+const passport = require('passport');
+const session = require('express-session');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const connectDB = require('./data/database');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swaggerConfig');
 const userRoutes = require('./routes/users');
+const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
+const stockHistoryRoutes = require('./routes/stockHistory');
 
 // Create Express App
 const app = express();
@@ -17,6 +22,7 @@ connectDB();
 
 // Middlewares
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
     ? 'https://productinventory-90te.onrender.com' 
@@ -24,10 +30,50 @@ app.use(cors({
   credentials: true
 }));
 
+app.use(session({
+  secret: 'supersecretkey',
+  resave: false,
+  saveUninitialized: false,
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Headers CORS
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "https://cse341-crud-uv92.onrender.com");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Z-Key");
+  res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, PATCH, OPTIONS, DELETE");
+  next();
+});
+
+// Authentication routes
+app.get('/login', (req, res) => {
+  res.send('<a href="/auth/github">Login con GitHub</a>');
+});
+
+app.get('/auth/github', passport.authenticate('github', { scope: ['user:email'] }));
+
+app.get('/github/callback', 
+  passport.authenticate('github', { 
+    failureRedirect: '/login',
+    successRedirect: process.env.NODE_ENV === 'production'
+      ? 'https://cse341-crud-uv92.onrender.com/api-docs'
+      : '/api-docs'
+  })
+);
+
+app.get('/logout', (req, res) => {
+  req.logout(() => {
+    res.redirect('/');
+  });
+});
+
 // Main routes
 app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
+app.use('/api/stock-history', stockHistoryRoutes);
 
 // Route to serve the swagger.json
 app.get('/swagger.json', (req, res) => {

@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema({
     password: { type: String, required: true, select: false },
     favoriteColor: String,
     birthday: Date
-});
+},  { timestamps: true });
 
 // Hook to encrypt password before saving
 userSchema.pre('save', async function (next) {

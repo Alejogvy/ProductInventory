@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { getProducts, getProductById, createProduct, updateProduct, deleteProduct} = require('../controllers/product');
+const isAuthenticated = require("../middleware/authenticate");
 
 /**
  * @swagger
@@ -59,6 +60,7 @@ const { getProducts, getProductById, createProduct, updateProduct, deleteProduct
 
 /**
  * @swagger
+ * /api/products:
  *   get:
  *     summary: Get all products
  *     tags: [Products]
@@ -84,6 +86,7 @@ router.get('/', async (req, res) => {
 
 /**
  * @swagger
+ * /api/products/{id}:
  *   get:
  *     summary: Get a product by ID
  *     tags: [Products]
@@ -116,6 +119,7 @@ router.get('/:id', async (req, res) => {
 
 /**
  * @swagger
+ * /api/products:
  *   post:
  *     summary: Create a new product
  *     tags: [Products]
@@ -131,7 +135,7 @@ router.get('/:id', async (req, res) => {
  *       400:
  *         description: Validation error
  */
-router.post('/', createProduct, async (req, res) => {
+router.post('/', isAuthenticated, createProduct, async (req, res) => {
   try {
     const product = new Product(req.body);
     await product.save();
@@ -143,6 +147,7 @@ router.post('/', createProduct, async (req, res) => {
 
 /**
  * @swagger
+ * /api/products/{id}:
  *   put:
  *     summary: Update a product by ID
  *     tags: [Products]
@@ -167,7 +172,7 @@ router.post('/', createProduct, async (req, res) => {
  *       404:
  *         description: Product not found
  */
-router.put('/:id', async (req, res) => {
+router.put('/:id', isAuthenticated, async (req, res) => {
   try {
     const { name, description, price, color, category, stock, supplier } = req.body;
     if (!name || !description || !price || !color || !category || !stock || !supplier) {
@@ -181,6 +186,7 @@ router.put('/:id', async (req, res) => {
 
 /**
  * @swagger
+ * /api/products/{id}:
  *   delete:
  *     summary: Delete a product by ID
  *     tags: [Products]

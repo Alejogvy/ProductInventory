@@ -23,13 +23,13 @@ const getProductById = async (req, res) => {
 
 const createProduct = async (req, res) => {
   try {
-    const { name, description, price, category } = req.body;
+    const { name, description, price, color, category, stock, supplier } = req.body;
 
-    if (!name || !description || !price || !category) {
+    if (!name || !description || !price || !color || !category || !stock || !supplier) {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
-    const newProduct = new Product({ name, description, price, category });
+    const newProduct = new Product({ name, description, price, color, category, stock, supplier });
     const savedProduct = await newProduct.save();
     res.status(201).json(savedProduct);
   } catch (error) {
@@ -39,11 +39,11 @@ const createProduct = async (req, res) => {
 
 const updateProduct = async (req, res) => {
   try {
-    const { name, description, price, category } = req.body;
+    const { name, description, price, color, category, stock, supplier } = req.body;
 
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
-      { name, description, price, category },
+      { name, description, price, color, category, stock, supplier },
       { new: true, runValidators: true }
     );
 

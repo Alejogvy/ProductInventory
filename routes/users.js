@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { getAll, getSingle, createUser, updateUser, deleteUser } = require('../controllers/users');
+const isAuthenticated = require("../middleware/authenticate");
 
 /**
  * @swagger
@@ -79,7 +80,7 @@ router.get('/:id', async (req, res) => {
  *       201:
  *         description: User created successfully
  */
-router.post('/', createUser, async (req, res) => {
+router.post('/', isAuthenticated, createUser, async (req, res) => {
     try {
         const users = new Users(req.body);
         await users.save();
@@ -123,7 +124,7 @@ router.post('/', createUser, async (req, res) => {
  *       404:
  *         description: User not found
  */
-router.put('/:id', async (req, res) => {
+router.put('/:id', isAuthenticated, async (req, res) => {
     try {
         const { firstName, lastName, email, password } = req.body;
         if (!firstName || !lastName || !email || !password) {

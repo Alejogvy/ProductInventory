@@ -5,19 +5,33 @@
     "description": "API for managing products, categories, and users",
     "version": "1.0.0"
   },
-  "servers": [
+  "host": "productinventory-90te.onrender.com",
+  "basePath": "/",
+  "schemes": ["https", "http"],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "tags": [
     {
-      "url": "https://productinventory-90te.onrender.com",
-      "description": "Production server"
+      "name": "Products",
+      "description": "Product management endpoints"
     },
     {
-      "url": "http://localhost:3000",
-      "description": "Development server"
+      "name": "Categories",
+      "description": "Category management endpoints"
+    },
+    {
+      "name": "Users",
+      "description": "User management endpoints"
+    },
+    {
+      "name": "StockHistory",
+      "description": "Stock history tracking endpoints"
     }
   ],
   "paths": {
     "/api/products": {
       "get": {
+        "tags": ["Products"],
         "description": "Get all products",
         "responses": {
           "200": {
@@ -35,6 +49,7 @@
         }
       },
       "post": {
+        "tags": ["Products"],
         "description": "Create a new product",
         "parameters": [
           {
@@ -61,6 +76,7 @@
     },
     "/api/products/{id}": {
       "get": {
+        "tags": ["Products"],
         "description": "Get a product by ID",
         "parameters": [
           {
@@ -86,6 +102,7 @@
         }
       },
       "put": {
+        "tags": ["Products"],
         "description": "Update a product by ID",
         "parameters": [
           {
@@ -122,6 +139,7 @@
         }
       },
       "delete": {
+        "tags": ["Products"],
         "description": "Delete a product by ID",
         "parameters": [
           {
@@ -146,6 +164,7 @@
     },
     "/api/categories": {
       "get": {
+        "tags": ["Categories"],
         "description": "Get all categories",
         "responses": {
           "200": {
@@ -163,6 +182,7 @@
         }
       },
       "post": {
+        "tags": ["Categories"],
         "description": "Create a new category",
         "parameters": [
           {
@@ -189,6 +209,7 @@
     },
     "/api/categories/{id}": {
       "get": {
+        "tags": ["Categories"],
         "description": "Get a category by ID",
         "parameters": [
           {
@@ -214,6 +235,7 @@
         }
       },
       "put": {
+        "tags": ["Categories"],
         "description": "Update a category by ID",
         "parameters": [
           {
@@ -250,6 +272,7 @@
         }
       },
       "delete": {
+        "tags": ["Categories"],
         "description": "Delete a category by ID",
         "parameters": [
           {
@@ -272,55 +295,65 @@
         }
       }
     },
-    "/users/": {
+    "/api/users": {
       "get": {
         "tags": ["Users"],
         "description": "Get user lists",
-        "produces": ["application/json"],
-        "security": [{ "oauth2": [] }],
+        "security": [{ "oauth2": ["read:user"] }],
         "responses": {
-          "200": { "description": "OK" },
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/User"
+              }
+            }
+          },
           "401": { "description": "Unauthorized" },
           "500": { "description": "Internal Server Error" }
         }
       },
       "post": {
         "tags": ["Users"],
-        "description": "",
+        "description": "Create a new user",
         "parameters": [
           {
             "name": "body",
             "in": "body",
+            "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "firstName": { "example": "any" },
-                "lastName": { "example": "any" },
-                "email": { "example": "any" },
-                "favoriteColor": { "example": "any" },
-                "birthday": { "example": "any" }
-              }
+              "$ref": "#/definitions/User"
             }
           }
         ],
         "responses": {
-          "201": { "description": "Created" },
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
           "400": { "description": "Bad Request" },
           "500": { "description": "Internal Server Error" }
         }
       }
     },
-    "/users/{id}": {
+    "/api/users/{id}": {
       "get": {
         "tags": ["Users"],
-        "description": "",
-        "produces": ["application/json"],
+        "description": "Get a user by ID",
         "parameters": [
           { "name": "id", "in": "path", "required": true, "type": "string" }
         ],
-        "security": [{ "oauth2": [] }],
+        "security": [{ "oauth2": ["read:user"] }],
         "responses": {
-          "200": { "description": "OK" },
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
           "400": { "description": "Bad Request" },
           "404": { "description": "Not Found" },
           "500": { "description": "Internal Server Error" }
@@ -328,118 +361,405 @@
       },
       "put": {
         "tags": ["Users"],
-        "description": "",
+        "description": "Update a user by ID",
         "parameters": [
           { "name": "id", "in": "path", "required": true, "type": "string" },
           {
             "name": "body",
             "in": "body",
+            "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "userName": { "example": "any" },
-                "email": { "example": "any" },
-                "name": { "example": "any" },
-                "ipaddress": { "example": "any" }
-              }
+              "$ref": "#/definitions/User"
             }
           }
         ],
         "responses": {
-          "200": { "description": "OK" },
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
           "400": { "description": "Bad Request" },
+          "404": { "description": "Not Found" },
           "500": { "description": "Internal Server Error" }
         }
       },
       "delete": {
         "tags": ["Users"],
-        "description": "",
+        "description": "Delete a user",
         "parameters": [
           { "name": "id", "in": "path", "required": true, "type": "string" }
         ],
         "responses": {
-          "200": { "description": "OK" },
+          "204": { "description": "No Content" },
           "400": { "description": "Bad Request" },
           "404": { "description": "Not Found" },
           "500": { "description": "Internal Server Error" }
         }
       }
-    }
-  },
-  "definitions": {
-    "Product": {
-      "type": "object",
-      "required": ["name", "description", "price", "category", "stock", "supplier"],
-      "properties": {
-        "_id": {
-          "type": "string",
-          "description": "Product ID"
-        },
-        "name": {
-          "type": "string",
-          "description": "Name of the product",
-          "example": "Lenovo Laptop"
-        },
-        "description": {
-          "type": "string",
-          "description": "Description of the product",
-          "example": "14-inch laptop with 8GB RAM"
-        },
-        "price": {
-          "type": "number",
-          "description": "Price of the product",
-          "example": 599.99
-        },
-        "category": {
-          "type": "string",
-          "description": "Category of the product",
-          "example": "Electronics"
-        },
-        "stock": {
-          "type": "integer",
-          "description": "Stock quantity of the product",
-          "example": 10
-        },
-        "supplier": {
-          "type": "string",
-          "description": "Supplier of the product",
-          "example": "Lenovo Inc."
+    },
+    "/api/stock-history": {
+      "get": {
+        "tags": ["StockHistory"],
+        "summary": "Get all stock history records",
+        "responses": {
+          "200": {
+            "description": "List of stock history",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/StockHistory"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "post": {
+        "summary": "Record a stock change", 
+        "description": "Adds a new stock change to the history and updates the product's stock. If the resulting stock would be negative, the operation is rejected.",
+        "tags": ["StockHistory"],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/StockHistoryInput"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Stock change recorded",
+            "schema": {
+              "$ref": "#/definitions/StockHistory"
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid data or stock would become negative",
+            "examples": {
+              "application/json": {
+                "message": "Cannot apply this stock change because it would result in negative stock"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "examples": {
+              "application/json": {
+                "message": "Error recording stock change"
+              }
+            }
+          }
         }
       }
     },
-    "Category": {
-      "type": "object",
-      "required": ["name", "description"],
-      "properties": {
-        "_id": {
-          "type": "string",
-          "description": "Category ID"
-        },
-        "name": {
-          "type": "string",
-          "description": "Name of the category",
-          "example": "Electronics"
-        },
-        "description": {
-          "type": "string",
-          "description": "Description of the category",
-          "example": "Electronic devices and accessories"
+    "/api/stock-history/{id}": {
+      "get": {
+        "tags": ["StockHistory"],
+        "description": "Get a Stock History by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stock History found",
+            "schema": {
+              "$ref": "#/definitions/StockHistory"
+            }
+          },
+          "404": {
+            "description": "Stock History not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
         }
       }
-    }
-  },
-  "components": {
-    "securitySchemes": {
-      "sessionAuth": {
-        "type": "apiKey",
-        "in": "cookie",
-        "name": "connect.sid"
+    },
+      "put": {
+        "tags": ["StockHistory"],
+        "summary": "Update a stock history record",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "string",
+            "description": "StockHistory ID"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/StockHistory"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stock history updated",
+            "schema": {
+              "$ref": "#/definitions/StockHistory"
+            }
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "404": {
+            "description": "Record not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["StockHistory"],
+        "summary": "Delete a stock history entry",
+        "description": "Deletes a stock history entry and reverts its effect on the product stock. Will fail if this causes the product stock to go below zero.",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "StockHistory ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stock history deleted and product stock reverted",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Stock history deleted and stock reverted"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Deletion would result in negative stock",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Cannot delete this history entry because it would cause stock to go below zero"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Record not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "History not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Error deleting stock history"
+                }
+              }
+            }
+          }
+        }
       }
-    }
-  },
-  "security": [
-    {
-      "sessionAuth": []
-    }
-  ]
+    },
+    "definitions": {
+      "Product": {
+        "type": "object",
+        "required": ["name", "description", "price", "category", "stock", "supplier"],
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Product ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the product",
+            "example": "Lenovo Laptop"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the product",
+            "example": "14-inch laptop with 8GB RAM"
+          },
+          "price": {
+            "type": "number",
+            "description": "Price of the product",
+            "example": 599.99
+          },
+          "category": {
+            "type": "string",
+            "description": "Category of the product",
+            "example": "Electronics"
+          },
+          "stock": {
+            "type": "integer",
+            "description": "Stock quantity of the product",
+            "example": 10
+          },
+          "supplier": {
+            "type": "string",
+            "description": "Supplier of the product",
+            "example": "Lenovo Inc."
+          }
+        }
+      },
+      "Category": {
+        "type": "object",
+        "required": ["name", "description"],
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Category ID",
+            "example": "5f8d0d55b54764421b7156c3"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the category",
+            "example": "Electronics"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the category",
+            "example": "Electronic devices and accessories"
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "required": ["firstName", "lastName", "email"],
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "User ID"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "User's first name",
+            "example": "Alejandro"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "User's last name",
+            "example": "Doe"
+          },
+          "email": {
+            "type": "string",
+            "description": "User's email address",
+            "example": "avillamar@example.com"
+          },
+          "favoriteColor": {
+            "type": "string",
+            "description": "User's favorite color",
+            "example": "blue"
+          },
+          "birthday": {
+            "type": "string",
+            "format": "date",
+            "description": "User's birth date",
+            "example": "1990-01-01"
+          }
+        }
+      },
+      "StockHistory": {
+        "type": "object",
+        "required": ["product", "change", "reason"],
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Record ID"
+          },
+          "product": {
+            "type": "object",
+            "properties": {
+              "_id": {
+                "type": "string",
+                "description": "Product ID"
+              },
+              "name": {
+                "type": "string",
+                "description": "Product name"
+              }
+            }
+          },
+          "change": {
+            "type": "integer",
+            "description": "Quantity change (positive or negative)"
+          },
+          "reason": {
+            "type": "string",
+            "enum": ["restock", "sale", "correction", "other"],
+            "description": "Reason for stock change"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the change occurred"
+          }
+        }
+      },
+      "StockHistoryInput": {
+        "type": "object",
+        "required": ["product", "change", "reason"],
+        "properties": {
+          "product": {
+            "type": "string",
+            "description": "Product ID"
+          },
+          "change": {
+            "type": "integer",
+            "description": "Quantity change (positive to increase, negative to decrease). Cannot be 0.",
+            "example": -5,
+            "minimum": -10000,
+            "maximum": 10000
+          },
+          "reason": {
+            "type": "string",
+            "enum": ["restock", "sale", "correction", "other"],
+            "description": "Reason for stock change"
+          }
+        }
+      }
+    },
+    "securityDefinitions": {
+      "oauth2": {
+        "type": "oauth2",
+        "flow": "accessCode",
+        "authorizationUrl": "https://github.com/login/oauth/authorize",
+        "tokenUrl": "https://github.com/login/oauth/access_token",
+        "scopes": {
+          "read:user": "Read user information"
+        }
+      }
+    },
+    "security": [
+      {
+        "oauth2": ["read:user"]
+      }
+    ]
 }

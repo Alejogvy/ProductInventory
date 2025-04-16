@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const categoryController = require('../controllers/category');
+const isAuthenticated = require("../middleware/authenticate");
 
 /**
  * @swagger
@@ -96,7 +97,7 @@ router.get('/:id', categoryController.getCategoryById);
  *       400:
  *         description: Error creating category
  */
-router.post('/', categoryController.createCategory);
+router.post('/', isAuthenticated, categoryController.createCategory);
 
 /**
  * @swagger
@@ -125,7 +126,7 @@ router.post('/', categoryController.createCategory);
  *       404:
  *         description: Category not found
  */
-router.put('/:id', categoryController.updateCategory);
+router.put('/:id', isAuthenticated, categoryController.updateCategory);
 
 /**
  * @swagger
