@@ -76,7 +76,7 @@ app.use((req, res, next) => {
 
 // Authentication routes
 app.get('/login', (req, res) => {
-  res.send('<a href="/auth/github">Login con GitHub</a>');
+  res.send('<a href="/auth/github">Login with GitHub</a>');
 });
 
 app.get('/auth/github', passport.authenticate('github', { scope: ['user:email'] }));
