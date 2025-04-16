@@ -4,6 +4,7 @@ const express = require('express');
 const passport = require('passport');
 const session = require('express-session');
 const mongoose = require('mongoose');
+const MongoStore = require('connect-mongo');
 const cors = require('cors');
 const connectDB = require('./data/database');
 const swaggerUi = require('swagger-ui-express');
@@ -42,6 +43,14 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
+// MongoDB for Sessions (Production)
+if (process.env.NODE_ENV === 'production') {
+  sessionConfig.store = MongoStore.create({
+    mongoUrl: process.env.MONGO_URI,
+    ttl: 24 * 60 * 60 // 1 day in seconds
+  });
+}
+
 // Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -52,11 +61,7 @@ app.use(cors({
   credentials: true
 }));
 
-app.use(session({
-  secret: 'supersecretkey',
-  resave: false,
-  saveUninitialized: false,
-}));
+app.use(session(sessionConfig));
 app.use(passport.initialize());
 app.use(passport.session());
 
