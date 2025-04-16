@@ -17,8 +17,30 @@ const stockHistoryRoutes = require('./routes/stockHistory');
 // Create Express App
 const app = express();
 
+app.set('trust proxy', 1);
+
 // Connect to MongoDB with the connectDB function
 connectDB();
+
+// Dynamic session configuration per environment
+const sessionConfig = {
+  secret: process.env.SESSION_SECRET || "supersecretkey",
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    secure: true, // Force HTTPS in production
+    sameSite: 'none', // Necessary for cross-site
+    maxAge: 24 * 60 * 60 * 1000 // 1 day in ms
+  }
+};
+
+// MongoDB for Sessions (Production)
+if (process.env.NODE_ENV === 'production') {
+  sessionConfig.store = MongoStore.create({
+    mongoUrl: process.env.MONGO_URI,
+    ttl: 24 * 60 * 60 // 1 day in seconds
+  });
+}
 
 // Middlewares
 app.use(express.json());
